@@ -179,6 +179,20 @@
   .metric { background: #ffffff; border: 1px solid #E4E2DC; border-radius: 12px; padding: 1rem; }
   .metric-label { font-size: 13px; color: #888880; margin: 0 0 4px; }
   .metric-value { font-size: 24px; font-weight: 600; margin: 0; }
+
+  .export-btn-wrap { margin: 1rem 0.6rem 0; }
+  .export-btn {
+    width: 100%;
+    height: 48px;
+    background: #E24B4A;
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .export-btn:active { opacity: 0.85; }
 </style>
 </head>
 <body>
@@ -204,6 +218,10 @@
     <p class="metric-label">Jours renseignés</p>
     <p class="metric-value" id="days-filled">0</p>
   </div>
+</div>
+
+<div class="export-btn-wrap">
+  <button class="export-btn" id="export-btn">📤 Exporter en image</button>
 </div>
 
 <div class="modal-overlay" id="modal-overlay">
@@ -413,6 +431,145 @@ overlay.addEventListener('click', (e) => {
 });
 
 updateSummary();
+
+// ---- Export to image ----
+const COLOR_HEX = {
+  vert: '#4CAF50',
+  jaune: '#FFD54F',
+  rouge: '#E24B4A',
+  rougeE: '#8B1E1E'
+};
+const COLOR_LABEL = {
+  vert: 'Vert',
+  jaune: 'Jaune',
+  rouge: 'Rouge',
+  rougeE: 'Rouge E'
+};
+
+document.getElementById('export-btn').addEventListener('click', () => {
+  const cols = 7;
+  const cellW = 230;
+  const cellH = 170;
+  const marginX = 24;
+  const topY = 110;
+  const headerH = 30;
+  const width = marginX * 2 + cols * cellW;
+  const rows = 6;
+  const height = topY + rows * cellH + 30;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, width, height);
+
+  // Title
+  ctx.fillStyle = '#1a1a1a';
+  ctx.font = '700 34px -apple-system, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  const groupName = (nameInput.value || '').trim();
+  ctx.fillText('Juillet 2026' + (groupName ? ' — ' + groupName : ''), width / 2, 50);
+
+  // Day headers
+  ctx.font = '600 16px -apple-system, Arial, sans-serif';
+  ctx.fillStyle = '#888880';
+  DAYS_FR.forEach((d, i) => {
+    const x = marginX + i * cellW + cellW / 2;
+    ctx.fillText(d, x, topY - 15);
+  });
+
+  function drawCell(col, row, day) {
+    const x0 = marginX + col * cellW;
+    const y0 = topY + row * cellH;
+    const w = cellW - 8;
+    const h = cellH - 8;
+
+    const greyed = isGreyed(day);
+    const s = state[day];
+
+    // background
+    ctx.fillStyle = greyed ? '#ECEAE5' : '#FFFFFF';
+    roundRect(ctx, x0, y0, w, h, 12);
+    ctx.fill();
+    ctx.strokeStyle = '#D9D7D0';
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, x0, y0, w, h, 12);
+    ctx.stroke();
+
+    // day number
+    ctx.fillStyle = greyed ? '#999990' : '#1a1a1a';
+    ctx.font = '700 22px -apple-system, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(String(day), x0 + 14, y0 + 30);
+
+    if (greyed) return;
+
+    // place
+    ctx.font = '500 15px -apple-system, Arial, sans-serif';
+    ctx.fillStyle = '#444440';
+    const place = s.place ? s.place : '—';
+    ctx.fillText('📍 ' + truncate(ctx, place, w - 28), x0 + 14, y0 + 60);
+
+    // people
+    const n = parseInt(s.people, 10);
+    const peopleText = (!isNaN(n) && n > 0) ? n + ' personne' + (n > 1 ? 's' : '') : '—';
+    ctx.fillText('👤 ' + peopleText, x0 + 14, y0 + 85);
+
+    // color
+    if (s.colorKey) {
+      ctx.fillStyle = COLOR_HEX[s.colorKey];
+      roundRect(ctx, x0 + 14, y0 + 98, 22, 22, 5);
+      ctx.fill();
+      ctx.fillStyle = '#444440';
+      ctx.font = '500 14px -apple-system, Arial, sans-serif';
+      ctx.fillText(COLOR_LABEL[s.colorKey], x0 + 44, y0 + 114);
+    } else {
+      ctx.fillStyle = '#AAAAAA';
+      ctx.font = '500 14px -apple-system, Arial, sans-serif';
+      ctx.fillText('Couleur: —', x0 + 14, y0 + 114);
+    }
+  }
+
+  function roundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+
+  function truncate(c, text, maxWidth) {
+    if (c.measureText(text).width <= maxWidth) return text;
+    let t = text;
+    while (t.length > 0 && c.measureText(t + '…').width > maxWidth) {
+      t = t.slice(0, -1);
+    }
+    return t + '…';
+  }
+
+  for (let d = 1; d <= 31; d++) {
+    const idx = d - 1 + offset;
+    const col = idx % 7;
+    const row = Math.floor(idx / 7);
+    drawCell(col, row, d);
+  }
+
+  canvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'calendrier_juillet_2026' + (groupName ? '_' + groupName.replace(/\s+/g, '_') : '') + '.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }, 'image/png');
+});
 </script>
 
 </body>
