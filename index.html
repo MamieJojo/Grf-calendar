@@ -37,93 +37,144 @@
     margin: 0 0 8px;
     text-align: center;
   }
-  .name-row {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .name-row label {
-    font-size: 12px;
-    color: #888880;
-    font-weight: 600;
-    white-space: nowrap;
-  }
+  .name-row { display: flex; align-items: center; gap: 6px; }
+  .name-row label { font-size: 12px; color: #888880; font-weight: 600; white-space: nowrap; }
   .name-row input {
-    flex: 1;
-    height: 32px;
-    font-size: 14px;
-    padding: 0 8px;
-    border: 1px solid #D5D3CC;
-    border-radius: 6px;
-    background: #FAFAF8;
+    flex: 1; height: 32px; font-size: 14px; padding: 0 8px;
+    border: 1px solid #D5D3CC; border-radius: 6px; background: #FAFAF8;
   }
+
   .cal-wrap { padding: 1rem 0.6rem; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
   .cal-header { text-align: center; font-size: 13px; font-weight: 600; color: #888880; padding: 4px 0 10px; }
+
   .cal-day {
     background: #ffffff;
     border: 1px solid #E4E2DC;
     border-radius: 12px;
-    padding: 10px 8px;
-    min-height: 175px;
+    min-height: 64px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
   }
-  .cal-day.empty { background: transparent; border-color: transparent; }
-  .cal-day.greyed { background: #ECEAE5; opacity: 0.6; }
+  .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+  .cal-day.greyed { background: #ECEAE5; opacity: 0.6; cursor: not-allowed; }
   .day-num { font-size: 18px; font-weight: 700; }
-  .field-row { display: flex; align-items: center; gap: 5px; margin-top: auto; }
-  .field-row input[type=number] {
+  .day-dot {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .day-people-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #888880;
+    background: #F4F3EF;
+    border-radius: 4px;
+    padding: 1px 4px;
+  }
+  .cs-badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #E24B4A;
+    background: #FFF0F0;
+    border: 1px solid #E24B4A;
+    border-radius: 4px;
+    padding: 1px 4px;
+    letter-spacing: 0.03em;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: #ffffff;
     width: 100%;
-    min-width: 0;
-    height: 38px;
+    max-width: 480px;
+    border-radius: 18px 18px 0 0;
+    padding: 1.25rem 1.25rem 1.75rem;
+    animation: slideUp 0.2s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin: 0; }
+  .modal-close {
+    background: #F4F3EF;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
     font-size: 16px;
-    padding: 0 8px;
-    border: 1.5px solid #D5D3CC;
-    border-radius: 7px;
-    background: #FAFAF8;
-    -moz-appearance: textfield;
+    color: #555;
+    cursor: pointer;
   }
-  .field-row input[type=number]::-webkit-outer-spin-button,
-  .field-row input[type=number]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  .modal-field { margin-bottom: 1rem; }
+  .modal-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888880;
+    margin-bottom: 6px;
   }
-  .field-row input:disabled { opacity: 0.4; }
-  .place-row { margin-top: 0; }
-  .place-row input[type=text] {
+  .modal-field input[type=text],
+  .modal-field input[type=number] {
     width: 100%;
-    height: 34px;
-    font-size: 14px;
-    padding: 0 8px;
+    height: 44px;
+    font-size: 16px;
+    padding: 0 12px;
     border: 1.5px solid #D5D3CC;
-    border-radius: 7px;
+    border-radius: 9px;
     background: #FAFAF8;
   }
-  .place-row input:disabled { opacity: 0.4; }
-  .icon { font-size: 16px; width: 20px; text-align: center; color: #999990; flex-shrink: 0; }
-  .color-choices { display: flex; gap: 5px; flex: 1; }
+  .color-choices { display: flex; gap: 6px; }
   .color-swatch {
     flex: 1;
-    height: 38px;
-    border-radius: 7px;
-    border: 1.5px solid transparent;
+    height: 48px;
+    border-radius: 9px;
+    border: 2px solid transparent;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 15px;
     font-weight: 700;
     color: #000;
     padding: 0;
   }
   .color-swatch.selected { border-color: #1a1a1a; }
-  .color-swatch:disabled { cursor: not-allowed; opacity: 0.5; }
   .color-swatch.c-vert { background: #4CAF50; }
   .color-swatch.c-jaune { background: #FFD54F; }
   .color-swatch.c-rouge { background: #E24B4A; }
-  .color-swatch.c-rougeE { background: #E24B4A; font-size: 15px; }
+  .color-swatch.c-rougeE { background: #E24B4A; }
+
   .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1.25rem 0.6rem 0; }
   .metric { background: #ffffff; border: 1px solid #E4E2DC; border-radius: 12px; padding: 1rem; }
   .metric-label { font-size: 13px; color: #888880; margin: 0 0 4px; }
@@ -155,10 +206,43 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <p class="modal-title" id="modal-title">Jour</p>
+      <button class="modal-close" id="modal-close" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="modal-field">
+      <label for="modal-place">Lieu</label>
+      <input type="text" id="modal-place" placeholder="Lieu">
+    </div>
+
+    <div class="modal-field">
+      <label for="modal-people">Nombre de personnes</label>
+      <input type="number" id="modal-people" min="0" placeholder="0" inputmode="numeric">
+    </div>
+
+    <div class="modal-field">
+      <label>Couleur</label>
+      <div class="color-choices" id="modal-colors"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const cal = document.getElementById('cal');
-const offset = 2; // 1 juillet 2026 = mercredi
+const offset = 2;
+
+const COLOR_OPTIONS = [
+  { key: 'vert', label: '', cls: 'c-vert', color: '#4CAF50' },
+  { key: 'jaune', label: '', cls: 'c-jaune', color: '#FFD54F' },
+  { key: 'rouge', label: '', cls: 'c-rouge', color: '#E24B4A' },
+  { key: 'rougeE', label: 'E', cls: 'c-rougeE', color: '#8B1E1E' }
+];
+
+const CS_DAYS = [4, 24];
 
 function getCol(day) { return (day - 1 + offset) % 7; }
 
@@ -214,103 +298,119 @@ function updateSummary() {
   document.getElementById('days-filled').textContent = filled;
 }
 
+const cellRefs = {};
+
+function renderCellVisual(day) {
+  const cell = cellRefs[day];
+  if (!cell) return;
+  const s = state[day];
+
+  cell.querySelectorAll('.day-dot, .day-people-badge').forEach(el => el.remove());
+
+  if (s.colorKey) {
+    const opt = COLOR_OPTIONS.find(o => o.key === s.colorKey);
+    if (opt) {
+      const dot = document.createElement('div');
+      dot.className = 'day-dot';
+      dot.style.background = opt.color;
+      cell.appendChild(dot);
+    }
+  }
+
+  const n = parseInt(s.people, 10);
+  if (!isNaN(n) && n > 0) {
+    const badge = document.createElement('div');
+    badge.className = 'day-people-badge';
+    badge.textContent = n;
+    cell.appendChild(badge);
+  }
+}
+
 for (let d = 1; d <= 31; d++) {
-  if (!state[d]) state[d] = { people: '', color: '', place: '' };
+  if (!state[d]) state[d] = { people: '', colorKey: null, place: '' };
   const greyed = isGreyed(d);
 
   const cell = document.createElement('div');
   cell.className = 'cal-day' + (greyed ? ' greyed' : '');
-  if (state[d].color) cell.style.background = state[d].color;
 
   const num = document.createElement('div');
   num.className = 'day-num';
   num.textContent = d;
   cell.appendChild(num);
 
-  const fl = document.createElement('div');
-  fl.className = 'field-row place-row';
-  const li = document.createElement('input');
-  li.type = 'text';
-  li.placeholder = 'Lieu';
-  li.value = state[d].place || '';
-  if (greyed) li.disabled = true;
-  li.addEventListener('input', () => {
-    state[d].place = li.value;
-    save();
-  });
-  fl.appendChild(li);
-  cell.appendChild(fl);
+  cellRefs[d] = cell;
 
-  const fp = document.createElement('div');
-  fp.className = 'field-row';
-  const pIcon = document.createElement('span');
-  pIcon.className = 'icon';
-  pIcon.textContent = '👤';
-  const pi = document.createElement('input');
-  pi.type = 'number';
-  pi.min = '0';
-  pi.placeholder = '0';
-  pi.value = state[d].people || '';
-  pi.inputMode = 'numeric';
-  if (greyed) pi.disabled = true;
-  pi.addEventListener('input', () => {
-    state[d].people = pi.value;
-    save();
-    updateSummary();
-  });
-  fp.appendChild(pIcon);
-  fp.appendChild(pi);
-  cell.appendChild(fp);
+  if (!greyed) {
+    cell.addEventListener('click', () => openModal(d));
+  }
 
-  const fc = document.createElement('div');
-  fc.className = 'field-row';
-  const colorChoices = document.createElement('div');
-  colorChoices.className = 'color-choices';
+  cal.appendChild(cell);
+  renderCellVisual(d);
+}
 
-  const options = [
-    { key: 'vert', label: '', cls: 'c-vert', color: '#4CAF50' },
-    { key: 'jaune', label: '', cls: 'c-jaune', color: '#FFD54F' },
-    { key: 'rouge', label: '', cls: 'c-rouge', color: '#E24B4A' },
-    { key: 'rougeE', label: 'E', cls: 'c-rougeE', color: '#8B1E1E' }
-  ];
+const overlay = document.getElementById('modal-overlay');
+const modalTitle = document.getElementById('modal-title');
+const modalPlace = document.getElementById('modal-place');
+const modalPeople = document.getElementById('modal-people');
+const modalColors = document.getElementById('modal-colors');
+const modalClose = document.getElementById('modal-close');
 
-  const swatchEls = [];
-  options.forEach(opt => {
+let currentDay = null;
+
+function openModal(day) {
+  currentDay = day;
+  const s = state[day];
+  modalTitle.textContent = day + ' juillet';
+  modalPlace.value = s.place || '';
+  modalPeople.value = s.people || '';
+
+  modalColors.innerHTML = '';
+  COLOR_OPTIONS.forEach(opt => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'color-swatch ' + opt.cls;
     btn.textContent = opt.label;
-    btn.setAttribute('aria-label', opt.key);
-    if (greyed) btn.disabled = true;
-    if (state[d].colorKey === opt.key) {
-      btn.classList.add('selected');
-      cell.style.background = opt.color;
-    }
+    if (s.colorKey === opt.key) btn.classList.add('selected');
     btn.addEventListener('click', () => {
-      if (state[d].colorKey === opt.key) {
-        // Deselect
-        state[d].colorKey = null;
-        state[d].color = '';
-        swatchEls.forEach(el => el.classList.remove('selected'));
-        cell.style.background = '';
+      if (state[currentDay].colorKey === opt.key) {
+        state[currentDay].colorKey = null;
       } else {
-        state[d].colorKey = opt.key;
-        state[d].color = opt.color;
-        swatchEls.forEach(el => el.classList.remove('selected'));
-        btn.classList.add('selected');
-        cell.style.background = opt.color;
+        state[currentDay].colorKey = opt.key;
       }
       save();
+      renderCellVisual(currentDay);
+      modalColors.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
+      if (state[currentDay].colorKey === opt.key) btn.classList.add('selected');
     });
-    swatchEls.push(btn);
-    colorChoices.appendChild(btn);
+    modalColors.appendChild(btn);
   });
 
-  fc.appendChild(colorChoices);
-  cell.appendChild(fc);
-
-  cal.appendChild(cell);
+  overlay.classList.add('open');
 }
+
+function closeModal() {
+  overlay.classList.remove('open');
+  currentDay = null;
+}
+
+modalPlace.addEventListener('input', () => {
+  if (currentDay === null) return;
+  state[currentDay].place = modalPlace.value;
+  save();
+});
+
+modalPeople.addEventListener('input', () => {
+  if (currentDay === null) return;
+  state[currentDay].people = modalPeople.value;
+  save();
+  updateSummary();
+  renderCellVisual(currentDay);
+});
+
+modalClose.addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) closeModal();
+});
 
 updateSummary();
 </script>
