@@ -327,17 +327,30 @@ function buildCalendar() {
     cellRefs[key] = cell;
 
     let pressTimer = null;
-    const onStart = () => {
+    let longPressTriggered = false;
+
+    const onStart = (e) => {
+      longPressTriggered = false;
       if (selectionMode) return;
       pressTimer = setTimeout(() => {
+        longPressTriggered = true;
         pressTimer = null;
         enterSelectionMode(d);
+        if (navigator.vibrate) navigator.vibrate(40);
       }, 500);
     };
-    const onCancel = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
-    const onEnd = () => {
+
+    const onCancel = () => {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    };
+
+    const onEnd = (e) => {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+
+      // If long press just triggered, ignore this end event
+      if (longPressTriggered) { longPressTriggered = false; return; }
+
       if (selectionMode) {
-        // toggle selection
         if (selectedDays.has(d)) {
           selectedDays.delete(d);
           if (selectedDays.size === 0) { exitSelectionMode(); return; }
@@ -348,13 +361,10 @@ function buildCalendar() {
         renderCellVisual(m.key, d, currentMonthIdx);
         return;
       }
-      if (pressTimer) {
-        clearTimeout(pressTimer);
-        pressTimer = null;
-        // Only open modal if day is NOT greyed
-        if (!isGreyed(currentMonthIdx, d)) {
-          openModal(d);
-        }
+
+      // Short tap: only open modal if not greyed
+      if (!isGreyed(currentMonthIdx, d)) {
+        openModal(d);
       }
     };
 
