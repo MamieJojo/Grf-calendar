@@ -2,102 +2,198 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Calendrier Juillet 2026</title>
 
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Juillet 2026">
-<meta name="theme-color" content="#F8F7F4">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.json">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23E24B4A'/%3E%3Ctext x='50' y='62' font-size='40' fill='white' text-anchor='middle' font-family='Arial' font-weight='bold'%3E31%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23E24B4A'/%3E%3Ctext x='50' y='62' font-size='40' fill='white' text-anchor='middle' font-family='Arial' font-weight='bold'%3E31%3C/text%3E%3C/svg%3E">
 
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #F8F7F4;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #F4F3EF;
     color: #1a1a1a;
-    padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
+    padding-bottom: 2rem;
+  }
+  .topbar {
+    background: #ffffff;
+    padding: 1rem 1rem 0.75rem;
+    border-bottom: 1px solid #E4E2DC;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar h1 {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 8px;
+    text-align: center;
+  }
+  .name-row { display: flex; align-items: center; gap: 6px; }
+  .name-row label { font-size: 12px; color: #888880; font-weight: 600; white-space: nowrap; }
+  .name-row input {
+    flex: 1; height: 32px; font-size: 14px; padding: 0 8px;
+    border: 1px solid #D5D3CC; border-radius: 6px; background: #FAFAF8;
+  }
+
+  .cal-wrap { padding: 1rem 0.6rem; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .cal-header { text-align: center; font-size: 13px; font-weight: 600; color: #888880; padding: 4px 0 10px; }
+
+  .cal-day {
+    background: #ffffff;
+    border: 1px solid #E4E2DC;
+    border-radius: 12px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
   }
-  .month-title {
-    font-size: 20px;
-    font-weight: 700;
-    text-align: center;
-    margin: 16px 0;
+  .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
+  .cal-day.greyed { background: #ECEAE5; opacity: 0.6; cursor: not-allowed; }
+  .day-num { font-size: 18px; font-weight: 700; }
+  .day-dot {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
   }
-  .cal-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 4px;
-  }
-  .cal-header {
-    text-align: center;
+  .day-people-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
     font-size: 10px;
+    font-weight: 700;
+    color: #888880;
+    background: #F4F3EF;
+    border-radius: 4px;
+    padding: 1px 4px;
+  }
+  .cs-badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #E24B4A;
+    background: #FFF0F0;
+    border: 1px solid #E24B4A;
+    border-radius: 4px;
+    padding: 1px 4px;
+    letter-spacing: 0.03em;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet {
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 18px 18px 0 0;
+    padding: 1.25rem 1.25rem 1.75rem;
+    animation: slideUp 0.2s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; margin: 0; }
+  .modal-close {
+    background: #F4F3EF;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    color: #555;
+    cursor: pointer;
+  }
+  .modal-field { margin-bottom: 1rem; }
+  .modal-field label {
+    display: block;
+    font-size: 12px;
     font-weight: 600;
     color: #888880;
-    padding: 4px 0;
-    text-transform: uppercase;
+    margin-bottom: 6px;
   }
-  .cal-day {
-    background: #FFFFFF;
-    border: 0.5px solid #CFCDC6;
-    border-radius: 8px;
-    padding: 5px;
-    min-height: 84px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    transition: background 0.15s;
-  }
-  .cal-day.empty { background: transparent; border-color: transparent; }
-  .cal-day.greyed { background: #B5B3AE; border-color: #7A7975; }
-  .cal-day.greyed .day-num { color: #555555; }
-  .day-num { font-size: 12px; font-weight: 700; }
-  .field-row { display: flex; align-items: center; gap: 3px; margin-top: auto; }
-  .field-row label { font-size: 12px; width: 14px; text-align: center; flex-shrink: 0; }
-  .field-row input[type=number] {
+  .modal-field input[type=text],
+  .modal-field input[type=number] {
     width: 100%;
-    min-width: 0;
-    height: 24px;
-    font-size: 11px;
-    padding: 0 4px;
-    border: 0.5px solid #C8C6BE;
-    border-radius: 4px;
-    background: #F8F7F4;
-    color: #1a1a1a;
+    height: 44px;
+    font-size: 16px;
+    padding: 0 12px;
+    border: 1.5px solid #D5D3CC;
+    border-radius: 9px;
+    background: #FAFAF8;
   }
-  .field-row input[type=color] {
-    width: 26px;
-    height: 24px;
-    padding: 1px;
-    border: 0.5px solid #C8C6BE;
-    border-radius: 4px;
-    background: #F8F7F4;
+  .color-choices { display: flex; gap: 6px; }
+  .color-swatch {
+    flex: 1;
+    height: 48px;
+    border-radius: 9px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #000;
+    padding: 0;
   }
-  input:disabled { opacity: 0.4; }
-  .summary {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin: 18px 0 24px;
-  }
-  .metric {
-    background: #FFFFFF;
-    border: 0.5px solid #CFCDC6;
-    border-radius: 10px;
-    padding: 12px;
-  }
-  .metric-label { font-size: 11px; color: #888880; margin: 0 0 4px; }
-  .metric-value { font-size: 22px; font-weight: 700; margin: 0; }
+  .color-swatch.selected { border-color: #1a1a1a; }
+  .color-swatch.c-vert { background: #4CAF50; }
+  .color-swatch.c-jaune { background: #FFD54F; }
+  .color-swatch.c-rouge { background: #E24B4A; }
+  .color-swatch.c-rougeE { background: #E24B4A; }
+
+  .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 1.25rem 0.6rem 0; }
+  .metric { background: #ffffff; border: 1px solid #E4E2DC; border-radius: 12px; padding: 1rem; }
+  .metric-label { font-size: 13px; color: #888880; margin: 0 0 4px; }
+  .metric-value { font-size: 24px; font-weight: 600; margin: 0; }
 </style>
 </head>
 <body>
 
-<div class="month-title">Juillet 2026</div>
-<div class="cal-grid" id="cal"></div>
+<div class="topbar">
+  <h1>Juillet 2026</h1>
+  <div class="name-row">
+    <label for="user-name">Groupe</label>
+    <input type="text" id="user-name" placeholder="Votre groupe">
+  </div>
+</div>
+
+<div class="cal-wrap">
+  <div class="cal-grid" id="cal"></div>
+</div>
 
 <div class="summary">
   <div class="metric">
@@ -110,10 +206,43 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <p class="modal-title" id="modal-title">Jour</p>
+      <button class="modal-close" id="modal-close" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="modal-field">
+      <label for="modal-place">Lieu</label>
+      <input type="text" id="modal-place" placeholder="Lieu">
+    </div>
+
+    <div class="modal-field">
+      <label for="modal-people">Nombre de personnes</label>
+      <input type="number" id="modal-people" min="0" placeholder="0" inputmode="numeric">
+    </div>
+
+    <div class="modal-field">
+      <label>Couleur</label>
+      <div class="color-choices" id="modal-colors"></div>
+    </div>
+  </div>
+</div>
+
 <script>
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 const cal = document.getElementById('cal');
-const offset = 2; // 1 juillet 2026 = mercredi
+const offset = 2;
+
+const COLOR_OPTIONS = [
+  { key: 'vert', label: '', cls: 'c-vert', color: '#4CAF50' },
+  { key: 'jaune', label: '', cls: 'c-jaune', color: '#FFD54F' },
+  { key: 'rouge', label: '', cls: 'c-rouge', color: '#E24B4A' },
+  { key: 'rougeE', label: 'E', cls: 'c-rougeE', color: '#8B1E1E' }
+];
+
+const CS_DAYS = [4, 24];
 
 function getCol(day) { return (day - 1 + offset) % 7; }
 
@@ -138,18 +267,29 @@ for (let i = 0; i < offset; i++) {
 }
 
 const STORAGE_KEY = 'calendrier-juillet-2026';
+const NAME_KEY = 'calendrier-juillet-2026-name';
 let state = {};
 try {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) state = JSON.parse(saved);
 } catch (e) {}
 
-function saveState() {
+const nameInput = document.getElementById('user-name');
+try {
+  const savedName = localStorage.getItem(NAME_KEY);
+  if (savedName) nameInput.value = savedName;
+} catch (e) {}
+nameInput.addEventListener('input', () => {
+  try { localStorage.setItem(NAME_KEY, nameInput.value); } catch (e) {}
+});
+
+function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
 }
 
 function updateSummary() {
-  let total = 0, filled = 0;
+  let total = 0;
+  let filled = 0;
   Object.values(state).forEach(v => {
     const n = parseInt(v.people, 10);
     if (!isNaN(n) && n > 0) { total += n; filled += 1; }
@@ -158,62 +298,122 @@ function updateSummary() {
   document.getElementById('days-filled').textContent = filled;
 }
 
+const cellRefs = {};
+
+function renderCellVisual(day) {
+  const cell = cellRefs[day];
+  if (!cell) return;
+  const s = state[day];
+
+  cell.querySelectorAll('.day-dot, .day-people-badge').forEach(el => el.remove());
+
+  if (s.colorKey) {
+    const opt = COLOR_OPTIONS.find(o => o.key === s.colorKey);
+    if (opt) {
+      const dot = document.createElement('div');
+      dot.className = 'day-dot';
+      dot.style.background = opt.color;
+      cell.appendChild(dot);
+    }
+  }
+
+  const n = parseInt(s.people, 10);
+  if (!isNaN(n) && n > 0) {
+    const badge = document.createElement('div');
+    badge.className = 'day-people-badge';
+    badge.textContent = n;
+    cell.appendChild(badge);
+  }
+}
+
 for (let d = 1; d <= 31; d++) {
-  if (!state[d]) state[d] = { people: '', color: '#e2e2e2' };
+  if (!state[d]) state[d] = { people: '', colorKey: null, place: '' };
   const greyed = isGreyed(d);
 
   const cell = document.createElement('div');
   cell.className = 'cal-day' + (greyed ? ' greyed' : '');
-  if (!greyed && state[d].color && state[d].color !== '#e2e2e2') {
-    cell.style.background = state[d].color;
-  }
 
   const num = document.createElement('div');
   num.className = 'day-num';
   num.textContent = d;
   cell.appendChild(num);
 
-  const fp = document.createElement('div');
-  fp.className = 'field-row';
-  const pl = document.createElement('label');
-  pl.textContent = '#';
-  const pi = document.createElement('input');
-  pi.type = 'number';
-  pi.min = '0';
-  pi.placeholder = '0';
-  pi.value = state[d].people || '';
-  pi.inputMode = 'numeric';
-  if (greyed) pi.disabled = true;
-  pi.addEventListener('input', () => {
-    state[d].people = pi.value;
-    saveState();
-    updateSummary();
-  });
-  fp.appendChild(pl);
-  fp.appendChild(pi);
-  cell.appendChild(fp);
+  cellRefs[d] = cell;
 
-  const fc = document.createElement('div');
-  fc.className = 'field-row';
-  const cl = document.createElement('label');
-  cl.textContent = '🎨';
-  const ci = document.createElement('input');
-  ci.type = 'color';
-  ci.value = state[d].color || '#e2e2e2';
-  if (greyed) ci.disabled = true;
-  ci.addEventListener('input', () => {
-    state[d].color = ci.value;
-    cell.style.background = ci.value;
-    saveState();
-  });
-  fc.appendChild(cl);
-  fc.appendChild(ci);
-  cell.appendChild(fc);
+  if (!greyed) {
+    cell.addEventListener('click', () => openModal(d));
+  }
 
   cal.appendChild(cell);
+  renderCellVisual(d);
 }
+
+const overlay = document.getElementById('modal-overlay');
+const modalTitle = document.getElementById('modal-title');
+const modalPlace = document.getElementById('modal-place');
+const modalPeople = document.getElementById('modal-people');
+const modalColors = document.getElementById('modal-colors');
+const modalClose = document.getElementById('modal-close');
+
+let currentDay = null;
+
+function openModal(day) {
+  currentDay = day;
+  const s = state[day];
+  modalTitle.textContent = day + ' juillet';
+  modalPlace.value = s.place || '';
+  modalPeople.value = s.people || '';
+
+  modalColors.innerHTML = '';
+  COLOR_OPTIONS.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'color-swatch ' + opt.cls;
+    btn.textContent = opt.label;
+    if (s.colorKey === opt.key) btn.classList.add('selected');
+    btn.addEventListener('click', () => {
+      if (state[currentDay].colorKey === opt.key) {
+        state[currentDay].colorKey = null;
+      } else {
+        state[currentDay].colorKey = opt.key;
+      }
+      save();
+      renderCellVisual(currentDay);
+      modalColors.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
+      if (state[currentDay].colorKey === opt.key) btn.classList.add('selected');
+    });
+    modalColors.appendChild(btn);
+  });
+
+  overlay.classList.add('open');
+}
+
+function closeModal() {
+  overlay.classList.remove('open');
+  currentDay = null;
+}
+
+modalPlace.addEventListener('input', () => {
+  if (currentDay === null) return;
+  state[currentDay].place = modalPlace.value;
+  save();
+});
+
+modalPeople.addEventListener('input', () => {
+  if (currentDay === null) return;
+  state[currentDay].people = modalPeople.value;
+  save();
+  updateSummary();
+  renderCellVisual(currentDay);
+});
+
+modalClose.addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) closeModal();
+});
 
 updateSummary();
 </script>
+
 </body>
 </html>
