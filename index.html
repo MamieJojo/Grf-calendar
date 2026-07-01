@@ -2,416 +2,218 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Calendrier 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Calendrier Juillet 2026</title>
+
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#ffffff">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23E24B4A'/%3E%3Ctext x='50' y='62' font-size='40' fill='white' text-anchor='middle' font-family='Arial' font-weight='bold'%3E31%3C/text%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23E24B4A'/%3E%3Ctext x='50' y='62' font-size='40' fill='white' text-anchor='middle' font-family='Arial' font-weight='bold'%3E31%3C/text%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Juillet 2026">
+<meta name="theme-color" content="#F8F7F4">
+
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #F4F3EF; color: #1a1a1a; padding-bottom: 2rem; }
-  .topbar { background: #ffffff; padding: 0.75rem 1rem; border-bottom: 1px solid #E4E2DC; position: sticky; top: 0; z-index: 10; }
-  .topbar-row1 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-  .month-nav { display: flex; align-items: center; gap: 10px; }
-  .month-nav button { background: #F4F3EF; border: none; border-radius: 8px; width: 32px; height: 32px; font-size: 18px; cursor: pointer; }
-  .month-nav h1 { font-size: 17px; font-weight: 700; margin: 0; }
-  .name-row { display: flex; align-items: center; gap: 6px; }
-  .name-row label { font-size: 12px; color: #888880; font-weight: 600; white-space: nowrap; }
-  .name-row input { flex: 1; height: 32px; font-size: 14px; padding: 0 8px; border: 1px solid #D5D3CC; border-radius: 6px; background: #FAFAF8; }
-  .hint { text-align: center; font-size: 11px; color: #AAAAAA; padding: 4px 0 0; }
-
-  .cal-wrap { padding: 0.75rem 0.6rem; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-  .cal-header { text-align: center; font-size: 13px; font-weight: 600; color: #888880; padding: 4px 0 8px; }
-  .cal-day {
-    background: #ffffff; border: 1px solid #E4E2DC; border-radius: 12px;
-    min-height: 64px; display: flex; align-items: center; justify-content: center;
-    position: relative; cursor: pointer; -webkit-user-select: none; user-select: none;
-    transition: transform 0.08s;
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #F8F7F4;
+    color: #1a1a1a;
+    padding: env(safe-area-inset-top) 12px env(safe-area-inset-bottom);
+    -webkit-user-select: none;
+    user-select: none;
   }
-  .cal-day.empty { background: transparent; border-color: transparent; cursor: default; }
-  .cal-day.greyed { background: #ECEAE5 !important; opacity: 0.55; }
-  .day-num { font-size: 18px; font-weight: 700; }
-  .day-dot { position: absolute; bottom: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; }
-  .day-people-badge { position: absolute; top: 5px; right: 5px; font-size: 10px; font-weight: 700; color: #888880; background: #F4F3EF; border-radius: 4px; padding: 1px 4px; }
-  .cs-badge { position: absolute; top: 5px; left: 5px; font-size: 10px; font-weight: 800; color: #E24B4A; background: #FFF0F0; border: 1px solid #E24B4A; border-radius: 4px; padding: 1px 4px; }
-
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: flex-end; justify-content: center; }
-  .modal-overlay.open { display: flex; }
-  .modal-sheet { background: #ffffff; width: 100%; max-width: 480px; border-radius: 18px 18px 0 0; padding: 1.25rem 1.25rem 1.75rem; animation: slideUp 0.2s ease-out; }
-  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
-  .modal-title { font-size: 18px; font-weight: 700; margin: 0; }
-  .modal-close { background: #F4F3EF; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 16px; color: #555; cursor: pointer; }
-  .modal-field { margin-bottom: 1rem; }
-  .modal-field label { display: block; font-size: 12px; font-weight: 600; color: #888880; margin-bottom: 6px; }
-  .modal-field input[type=text], .modal-field input[type=number] { width: 100%; height: 44px; font-size: 16px; padding: 0 12px; border: 1.5px solid #D5D3CC; border-radius: 9px; background: #FAFAF8; }
-  .color-choices { display: flex; gap: 6px; }
-  .color-swatch { flex: 1; height: 48px; border-radius: 9px; border: 2px solid transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #000; padding: 0; }
-  .color-swatch.selected { border-color: #1a1a1a; }
-  .c-vert { background: #4CAF50; } .c-jaune { background: #FFD54F; } .c-rouge { background: #E24B4A; } .c-rougeE { background: #E24B4A; }
-  .cs-toggle-btn { width: 100%; height: 44px; border-radius: 9px; border: 2px solid #E24B4A; background: #FFF0F0; color: #A32D2D; font-size: 15px; font-weight: 700; cursor: pointer; }
-  .cs-toggle-btn.active { background: #E24B4A; color: #ffffff; }
-
-  .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0.75rem 0.6rem 0; }
-  .metric { background: #ffffff; border: 1px solid #E4E2DC; border-radius: 12px; padding: 1rem; }
-  .metric-label { font-size: 13px; color: #888880; margin: 0 0 4px; }
-  .metric-value { font-size: 24px; font-weight: 600; margin: 0; }
-  .export-btn-wrap { margin: 0.75rem 0.6rem 0; }
-  .export-btn { width: 100%; height: 48px; background: #E24B4A; color: #ffffff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; }
-  .export-btn:active { opacity: 0.85; }
+  .month-title {
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    margin: 16px 0;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-header {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: #888880;
+    padding: 4px 0;
+    text-transform: uppercase;
+  }
+  .cal-day {
+    background: #FFFFFF;
+    border: 0.5px solid #CFCDC6;
+    border-radius: 8px;
+    padding: 5px;
+    min-height: 84px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    transition: background 0.15s;
+  }
+  .cal-day.empty { background: transparent; border-color: transparent; }
+  .cal-day.greyed { background: #B5B3AE; border-color: #7A7975; }
+  .cal-day.greyed .day-num { color: #555555; }
+  .day-num { font-size: 12px; font-weight: 700; }
+  .field-row { display: flex; align-items: center; gap: 3px; margin-top: auto; }
+  .field-row label { font-size: 12px; width: 14px; text-align: center; flex-shrink: 0; }
+  .field-row input[type=number] {
+    width: 100%;
+    min-width: 0;
+    height: 24px;
+    font-size: 11px;
+    padding: 0 4px;
+    border: 0.5px solid #C8C6BE;
+    border-radius: 4px;
+    background: #F8F7F4;
+    color: #1a1a1a;
+  }
+  .field-row input[type=color] {
+    width: 26px;
+    height: 24px;
+    padding: 1px;
+    border: 0.5px solid #C8C6BE;
+    border-radius: 4px;
+    background: #F8F7F4;
+  }
+  input:disabled { opacity: 0.4; }
+  .summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 18px 0 24px;
+  }
+  .metric {
+    background: #FFFFFF;
+    border: 0.5px solid #CFCDC6;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .metric-label { font-size: 11px; color: #888880; margin: 0 0 4px; }
+  .metric-value { font-size: 22px; font-weight: 700; margin: 0; }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="topbar-row1">
-    <div class="month-nav">
-      <button id="prev-month">‹</button>
-      <h1 id="month-title">Juillet 2026</h1>
-      <button id="next-month">›</button>
-    </div>
-  </div>
-  <div class="name-row">
-    <label for="user-name">Groupe</label>
-    <input type="text" id="user-name" placeholder="Votre groupe">
-  </div>
-  <p class="hint">Appui court : ouvrir • Appui long : griser / dégriser</p>
-</div>
-
-<div class="cal-wrap">
-  <div class="cal-grid" id="cal"></div>
-</div>
+<div class="month-title">Juillet 2026</div>
+<div class="cal-grid" id="cal"></div>
 
 <div class="summary">
-  <div class="metric"><p class="metric-label">Total personnes</p><p class="metric-value" id="total-people">0</p></div>
-  <div class="metric"><p class="metric-label">Jours renseignés</p><p class="metric-value" id="days-filled">0</p></div>
-</div>
-<div class="export-btn-wrap">
-  <button class="export-btn" id="export-btn">📤 Exporter en image</button>
-</div>
-
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal-sheet">
-    <div class="modal-header">
-      <p class="modal-title" id="modal-title">Jour</p>
-      <button class="modal-close" id="modal-close">✕</button>
-    </div>
-    <div class="modal-field"><label for="modal-place">Lieu</label><input type="text" id="modal-place" placeholder="Lieu"></div>
-    <div class="modal-field"><label for="modal-people">Nombre de personnes</label><input type="number" id="modal-people" min="0" placeholder="0" inputmode="numeric"></div>
-    <div class="modal-field"><label>Couleur</label><div class="color-choices" id="modal-colors"></div></div>
-    <div class="modal-field"><label>Comptage spécifique</label><button class="cs-toggle-btn" id="cs-toggle-btn">CS</button></div>
+  <div class="metric">
+    <p class="metric-label">Total personnes</p>
+    <p class="metric-value" id="total-people">0</p>
+  </div>
+  <div class="metric">
+    <p class="metric-label">Jours renseignés</p>
+    <p class="metric-value" id="days-filled">0</p>
   </div>
 </div>
 
 <script>
 const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+const cal = document.getElementById('cal');
+const offset = 2; // 1 juillet 2026 = mercredi
 
-const MONTHS = [
-  { name:'Juillet 2026', key:'juillet2026', days:31, offset:2, defaultGreyed:()=>false },
-  { name:'Août 2026',    key:'aout2026',    days:31, offset:6, defaultGreyed:()=>false }
-];
+function getCol(day) { return (day - 1 + offset) % 7; }
 
-let currentMonthIdx = 0;
+function isGreyed(day) {
+  if (day === 2) return true;
+  const col = getCol(day);
+  if (day >= 7 && (col === 1 || col === 2)) return true;
+  return false;
+}
 
-const COLOR_OPTIONS = [
-  {key:'vert',   label:'',  cls:'c-vert',   color:'#4CAF50'},
-  {key:'jaune',  label:'',  cls:'c-jaune',  color:'#FFD54F'},
-  {key:'rouge',  label:'',  cls:'c-rouge',  color:'#E24B4A'},
-  {key:'rougeE', label:'E', cls:'c-rougeE', color:'#8B1E1E'}
-];
-const COLOR_HEX   = {vert:'#4CAF50', jaune:'#FFD54F', rouge:'#E24B4A', rougeE:'#8B1E1E'};
-const COLOR_LABEL = {vert:'Vert', jaune:'Jaune', rouge:'Rouge', rougeE:'Rouge E'};
-
-const STORAGE_KEY = 'calendrier-2026-v2';
-const NAME_KEY    = 'calendrier-2026-name';
-let globalState = {};
-try { const s = localStorage.getItem(STORAGE_KEY); if (s) globalState = JSON.parse(s); } catch(e){}
-
-// Reset any saved greyed overrides
-MONTHS.forEach(m => {
-  if (globalState[m.key]) {
-    Object.keys(globalState[m.key]).forEach(day => {
-      globalState[m.key][day].greyed = null;
-    });
-  }
+DAYS_FR.forEach(d => {
+  const h = document.createElement('div');
+  h.className = 'cal-header';
+  h.textContent = d;
+  cal.appendChild(h);
 });
 
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(globalState)); } catch(e){} }
-function getState(mk, day) {
-  if (!globalState[mk]) globalState[mk] = {};
-  if (!globalState[mk][day]) globalState[mk][day] = {people:'', colorKey:null, place:'', cs:false, greyed:null};
-  return globalState[mk][day];
+for (let i = 0; i < offset; i++) {
+  const e = document.createElement('div');
+  e.className = 'cal-day empty';
+  cal.appendChild(e);
 }
 
-const nameInput = document.getElementById('user-name');
-try { const n = localStorage.getItem(NAME_KEY); if(n) nameInput.value=n; } catch(e){}
-nameInput.addEventListener('input', () => { try{localStorage.setItem(NAME_KEY, nameInput.value);}catch(e){} });
+const STORAGE_KEY = 'calendrier-juillet-2026';
+let state = {};
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) state = JSON.parse(saved);
+} catch (e) {}
 
-const calEl = document.getElementById('cal');
-const monthTitle = document.getElementById('month-title');
-const cellRefs = {};
-
-function isGreyed(midx, day) {
-  const s = getState(MONTHS[midx].key, day);
-  return s.greyed !== null ? s.greyed : MONTHS[midx].defaultGreyed(day);
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
 }
-
-function renderCellVisual(mk, day, midx) {
-  const key = mk+'-'+day;
-  const cell = cellRefs[key];
-  if (!cell) return;
-  const s = getState(mk, day);
-  const greyed = isGreyed(midx, day);
-  cell.className = 'cal-day' + (greyed ? ' greyed' : '');
-  cell.querySelectorAll('.day-dot,.day-people-badge,.cs-badge').forEach(el=>el.remove());
-  if (!greyed) {
-    if (s.colorKey) {
-      const dot = document.createElement('div');
-      dot.className = 'day-dot';
-      dot.style.background = COLOR_HEX[s.colorKey];
-      cell.appendChild(dot);
-    }
-    const n = parseInt(s.people, 10);
-    if (!isNaN(n) && n > 0) {
-      const b = document.createElement('div');
-      b.className = 'day-people-badge';
-      b.textContent = n;
-      cell.appendChild(b);
-    }
-    if (s.cs) {
-      const cs = document.createElement('div');
-      cs.className = 'cs-badge';
-      cs.textContent = 'CS';
-      cell.appendChild(cs);
-    }
-  }
-}
-
-function buildCalendar() {
-  calEl.innerHTML = '';
-  const m = MONTHS[currentMonthIdx];
-  monthTitle.textContent = m.name;
-
-  DAYS_FR.forEach(d => {
-    const h = document.createElement('div');
-    h.className = 'cal-header';
-    h.textContent = d;
-    calEl.appendChild(h);
-  });
-
-  for (let i = 0; i < m.offset; i++) {
-    const e = document.createElement('div');
-    e.className = 'cal-day empty';
-    calEl.appendChild(e);
-  }
-
-  for (let d = 1; d <= m.days; d++) {
-    const cell = document.createElement('div');
-    cell.className = 'cal-day' + (isGreyed(currentMonthIdx, d) ? ' greyed' : '');
-
-    const num = document.createElement('div');
-    num.className = 'day-num';
-    num.textContent = d;
-    cell.appendChild(num);
-
-    const key = m.key+'-'+d;
-    cellRefs[key] = cell;
-
-    let pressTimer = null;
-    let longFired = false;
-
-    cell.addEventListener('touchstart', () => {
-      longFired = false;
-      pressTimer = setTimeout(() => {
-        longFired = true;
-        pressTimer = null;
-        const s = getState(m.key, d);
-        s.greyed = !isGreyed(currentMonthIdx, d);
-        save();
-        renderCellVisual(m.key, d, currentMonthIdx);
-        if (navigator.vibrate) navigator.vibrate(40);
-      }, 500);
-    }, {passive:true});
-
-    cell.addEventListener('touchend', () => {
-      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-      if (longFired) { longFired = false; return; }
-      if (!isGreyed(currentMonthIdx, d)) openModal(d);
-    });
-
-    cell.addEventListener('touchcancel', () => {
-      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-      longFired = false;
-    });
-
-    // Mouse fallback for desktop
-    cell.addEventListener('mousedown', () => {
-      longFired = false;
-      pressTimer = setTimeout(() => {
-        longFired = true;
-        pressTimer = null;
-        const s = getState(m.key, d);
-        s.greyed = !isGreyed(currentMonthIdx, d);
-        save();
-        renderCellVisual(m.key, d, currentMonthIdx);
-      }, 500);
-    });
-    cell.addEventListener('mouseup', () => {
-      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-      if (longFired) { longFired = false; return; }
-      if (!isGreyed(currentMonthIdx, d)) openModal(d);
-    });
-    cell.addEventListener('mouseleave', () => {
-      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-    });
-
-    calEl.appendChild(cell);
-    renderCellVisual(m.key, d, currentMonthIdx);
-  }
-
-  updateSummary();
-}
-
-document.getElementById('prev-month').addEventListener('click', () => {
-  if (currentMonthIdx > 0) { currentMonthIdx--; buildCalendar(); }
-});
-document.getElementById('next-month').addEventListener('click', () => {
-  if (currentMonthIdx < MONTHS.length-1) { currentMonthIdx++; buildCalendar(); }
-});
 
 function updateSummary() {
-  let total=0, filled=0;
-  MONTHS.forEach(m => {
-    if (!globalState[m.key]) return;
-    Object.values(globalState[m.key]).forEach(v => {
-      const n = parseInt(v.people,10);
-      if (!isNaN(n) && n>0) { total+=n; filled++; }
-    });
+  let total = 0, filled = 0;
+  Object.values(state).forEach(v => {
+    const n = parseInt(v.people, 10);
+    if (!isNaN(n) && n > 0) { total += n; filled += 1; }
   });
   document.getElementById('total-people').textContent = total;
   document.getElementById('days-filled').textContent = filled;
 }
 
-// Modal
-const overlay    = document.getElementById('modal-overlay');
-const modalTitle = document.getElementById('modal-title');
-const modalPlace = document.getElementById('modal-place');
-const modalPeople= document.getElementById('modal-people');
-const modalColors= document.getElementById('modal-colors');
-const modalClose = document.getElementById('modal-close');
-const csToggleBtn= document.getElementById('cs-toggle-btn');
-let currentDay = null;
+for (let d = 1; d <= 31; d++) {
+  if (!state[d]) state[d] = { people: '', color: '#e2e2e2' };
+  const greyed = isGreyed(d);
 
-function openModal(day) {
-  currentDay = day;
-  const m = MONTHS[currentMonthIdx];
-  const s = getState(m.key, day);
-  modalTitle.textContent = day+' '+m.name;
-  modalPlace.value = s.place||'';
-  modalPeople.value = s.people||'';
-  csToggleBtn.className = 'cs-toggle-btn'+(s.cs?' active':'');
-  modalColors.innerHTML = '';
-  COLOR_OPTIONS.forEach(opt => {
-    const btn = document.createElement('button');
-    btn.type='button'; btn.className='color-swatch '+opt.cls; btn.textContent=opt.label;
-    if (s.colorKey===opt.key) btn.classList.add('selected');
-    btn.addEventListener('click', () => {
-      const mk=MONTHS[currentMonthIdx].key;
-      const cur=getState(mk,currentDay);
-      cur.colorKey = cur.colorKey===opt.key ? null : opt.key;
-      save(); renderCellVisual(mk,currentDay,currentMonthIdx);
-      modalColors.querySelectorAll('.color-swatch').forEach(el=>el.classList.remove('selected'));
-      if (cur.colorKey===opt.key) btn.classList.add('selected');
-    });
-    modalColors.appendChild(btn);
+  const cell = document.createElement('div');
+  cell.className = 'cal-day' + (greyed ? ' greyed' : '');
+  if (!greyed && state[d].color && state[d].color !== '#e2e2e2') {
+    cell.style.background = state[d].color;
+  }
+
+  const num = document.createElement('div');
+  num.className = 'day-num';
+  num.textContent = d;
+  cell.appendChild(num);
+
+  const fp = document.createElement('div');
+  fp.className = 'field-row';
+  const pl = document.createElement('label');
+  pl.textContent = '#';
+  const pi = document.createElement('input');
+  pi.type = 'number';
+  pi.min = '0';
+  pi.placeholder = '0';
+  pi.value = state[d].people || '';
+  pi.inputMode = 'numeric';
+  if (greyed) pi.disabled = true;
+  pi.addEventListener('input', () => {
+    state[d].people = pi.value;
+    saveState();
+    updateSummary();
   });
-  overlay.classList.add('open');
+  fp.appendChild(pl);
+  fp.appendChild(pi);
+  cell.appendChild(fp);
+
+  const fc = document.createElement('div');
+  fc.className = 'field-row';
+  const cl = document.createElement('label');
+  cl.textContent = '🎨';
+  const ci = document.createElement('input');
+  ci.type = 'color';
+  ci.value = state[d].color || '#e2e2e2';
+  if (greyed) ci.disabled = true;
+  ci.addEventListener('input', () => {
+    state[d].color = ci.value;
+    cell.style.background = ci.value;
+    saveState();
+  });
+  fc.appendChild(cl);
+  fc.appendChild(ci);
+  cell.appendChild(fc);
+
+  cal.appendChild(cell);
 }
 
-csToggleBtn.addEventListener('click', () => {
-  if (currentDay===null) return;
-  const mk=MONTHS[currentMonthIdx].key;
-  const s=getState(mk,currentDay);
-  s.cs=!s.cs;
-  csToggleBtn.className='cs-toggle-btn'+(s.cs?' active':'');
-  save(); renderCellVisual(mk,currentDay,currentMonthIdx);
-});
-
-function closeModal() { overlay.classList.remove('open'); currentDay=null; }
-modalPlace.addEventListener('input', () => { if(currentDay===null)return; getState(MONTHS[currentMonthIdx].key,currentDay).place=modalPlace.value; save(); });
-modalPeople.addEventListener('input', () => {
-  if(currentDay===null)return;
-  getState(MONTHS[currentMonthIdx].key,currentDay).people=modalPeople.value;
-  save(); updateSummary(); renderCellVisual(MONTHS[currentMonthIdx].key,currentDay,currentMonthIdx);
-});
-modalClose.addEventListener('click', closeModal);
-overlay.addEventListener('click', (e) => { if(e.target===overlay) closeModal(); });
-
-// Export
-document.getElementById('export-btn').addEventListener('click', () => {
-  const m=MONTHS[currentMonthIdx];
-  const cellW=230,cellH=180,marginX=24,topY=120;
-  const width=marginX*2+7*cellW;
-  const totalRows=Math.ceil((m.days+m.offset)/7);
-  const height=topY+totalRows*cellH+40;
-  const canvas=document.createElement('canvas');
-  const scale=2; canvas.width=width*scale; canvas.height=height*scale;
-  const ctx=canvas.getContext('2d'); ctx.scale(scale,scale);
-  ctx.fillStyle='#FFFFFF'; ctx.fillRect(0,0,width,height);
-  const groupName=(nameInput.value||'').trim();
-  ctx.fillStyle='#1a1a1a'; ctx.font='700 30px Arial,sans-serif'; ctx.textAlign='center';
-  ctx.fillText(m.name+(groupName?' — '+groupName:''), width/2, 45);
-  let expTotal=0, expFilled=0;
-  for(let d=1;d<=m.days;d++){
-    const s=getState(m.key,d);
-    const n=parseInt(s.people,10);
-    if(!isNaN(n)&&n>0){expTotal+=n;expFilled++;}
-  }
-  ctx.font='500 15px Arial,sans-serif'; ctx.fillStyle='#555550'; ctx.textAlign='left';
-  ctx.fillText('Total personnes : '+expTotal+'   •   Jours renseignés : '+expFilled, marginX, 75);
-  ctx.font='600 15px Arial,sans-serif'; ctx.fillStyle='#888880'; ctx.textAlign='center';
-  DAYS_FR.forEach((d,i)=>ctx.fillText(d, marginX+i*cellW+cellW/2, topY-12));
-  function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-  function trunc(c,t,mw){if(c.measureText(t).width<=mw)return t;while(t.length>0&&c.measureText(t+'…').width>mw)t=t.slice(0,-1);return t+'…';}
-  for(let d=1;d<=m.days;d++){
-    const idx=d-1+m.offset;
-    const col=idx%7,row=Math.floor(idx/7);
-    const x0=marginX+col*cellW,y0=topY+row*cellH,w=cellW-8,h=cellH-8;
-    const greyed=isGreyed(currentMonthIdx,d);
-    const s=getState(m.key,d);
-    ctx.fillStyle=greyed?'#ECEAE5':'#FFFFFF'; rr(ctx,x0,y0,w,h,12); ctx.fill();
-    ctx.strokeStyle='#D9D7D0'; ctx.lineWidth=1.5; rr(ctx,x0,y0,w,h,12); ctx.stroke();
-    ctx.fillStyle=greyed?'#999990':'#1a1a1a'; ctx.font='700 20px Arial,sans-serif'; ctx.textAlign='left';
-    ctx.fillText(String(d),x0+12,y0+26);
-    if(s.cs&&!greyed){
-      ctx.fillStyle='#FFF0F0'; rr(ctx,x0+38,y0+8,28,18,4); ctx.fill();
-      ctx.strokeStyle='#E24B4A'; ctx.lineWidth=1; rr(ctx,x0+38,y0+8,28,18,4); ctx.stroke();
-      ctx.fillStyle='#E24B4A'; ctx.font='700 11px Arial,sans-serif'; ctx.textAlign='center';
-      ctx.fillText('CS',x0+52,y0+21);
-    }
-    if(!greyed){
-      ctx.font='500 13px Arial,sans-serif'; ctx.textAlign='left'; ctx.fillStyle='#444440';
-      ctx.fillText('📍 '+trunc(ctx,s.place||'—',w-30),x0+12,y0+56);
-      const n=parseInt(s.people,10);
-      ctx.fillText('👤 '+((!isNaN(n)&&n>0)?n+' pers.':'—'),x0+12,y0+78);
-      if(s.colorKey){ctx.fillStyle=COLOR_HEX[s.colorKey];rr(ctx,x0+12,y0+90,18,18,4);ctx.fill();ctx.fillStyle='#444440';ctx.font='500 12px Arial,sans-serif';ctx.fillText(COLOR_LABEL[s.colorKey],x0+36,y0+103);}
-    }
-  }
-  canvas.toBlob(blob=>{
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a'); a.href=url;
-    a.download='calendrier_'+m.key+(groupName?'_'+groupName.replace(/\s+/g,'_'):'')+'.png';
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),2000);
-  },'image/png');
-});
-
-buildCalendar();
+updateSummary();
 </script>
 </body>
 </html>
