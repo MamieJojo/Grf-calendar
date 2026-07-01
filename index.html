@@ -351,7 +351,10 @@ function buildCalendar() {
       if (pressTimer) {
         clearTimeout(pressTimer);
         pressTimer = null;
-        openModal(d);
+        // Only open modal if day is NOT greyed
+        if (!isGreyed(currentMonthIdx, d)) {
+          openModal(d);
+        }
       }
     };
 
