@@ -163,9 +163,9 @@ const DAYS_FR = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
 
 const MONTHS = [
   { name:'Juillet 2026', key:'juillet2026', days:31, offset:2,
-    defaultGreyed:(day) => { const c=(day-1+2)%7; return day===2||(day>=7&&(c===1||c===2)); } },
+    defaultGreyed:(day) => false },
   { name:'Août 2026', key:'aout2026', days:31, offset:6,
-    defaultGreyed:(day) => { const c=(day-1+6)%7; return c===1||c===2; } }
+    defaultGreyed:(day) => false }
 ];
 
 let currentMonthIdx = 0;
@@ -446,7 +446,7 @@ overlay.addEventListener('click', (e) => { if(e.target===overlay) closeModal(); 
 // Export
 document.getElementById('export-btn').addEventListener('click', () => {
   const m=MONTHS[currentMonthIdx];
-  const cellW=230,cellH=180,marginX=24,topY=110;
+  const cellW=230,cellH=180,marginX=24,topY=120;
   const width=marginX*2+7*cellW;
   const totalRows=Math.ceil((m.days+m.offset)/7);
   const height=topY+totalRows*cellH+40;
@@ -457,7 +457,18 @@ document.getElementById('export-btn').addEventListener('click', () => {
   const groupName=(nameInput.value||'').trim();
   ctx.fillStyle='#1a1a1a'; ctx.font='700 30px Arial,sans-serif'; ctx.textAlign='center';
   ctx.fillText(m.name+(groupName?' — '+groupName:''), width/2, 45);
-  ctx.font='600 15px Arial,sans-serif'; ctx.fillStyle='#888880';
+
+  // Compute totals
+  let expTotal=0, expFilled=0;
+  for(let d=1;d<=m.days;d++){
+    const s=getState(m.key,d);
+    const n=parseInt(s.people,10);
+    if(!isNaN(n)&&n>0){expTotal+=n;expFilled++;}
+  }
+  ctx.font='500 15px Arial,sans-serif'; ctx.fillStyle='#555550'; ctx.textAlign='left';
+  ctx.fillText('Total personnes : '+expTotal+'   •   Jours renseignés : '+expFilled, marginX, 75);
+
+  ctx.font='600 15px Arial,sans-serif'; ctx.fillStyle='#888880'; ctx.textAlign='center';
   DAYS_FR.forEach((d,i)=>ctx.fillText(d, marginX+i*cellW+cellW/2, topY-12));
   function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
   function trunc(c,t,mw){if(c.measureText(t).width<=mw)return t;while(t.length>0&&c.measureText(t+'…').width>mw)t=t.slice(0,-1);return t+'…';}
